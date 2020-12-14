@@ -1,0 +1,22 @@
+Package: riskslimr
+Title: Implementation of RiskSLIM model in R
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Robert",
+           family = "Zamora",
+           role = c("aut", "cre"),
+           email = "zamora.rr@gmail.com")
+Description: What the package does (one paragraph).
+License: What license it uses
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: 
+    magrittr,
+    ompr,
+    ompr.roi
+Suggests: 
+    testthat (>= 2.1.0)
+Depends: 
+    ROI.plugin.glpk
