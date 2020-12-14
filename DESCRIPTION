@@ -20,3 +20,5 @@ Suggests:
     testthat (>= 2.1.0)
 Depends: 
     ROI.plugin.glpk
+URL: https://github.com/zamorarr/riskslimr
+BugReports: https://github.com/zamorarr/riskslimr/issues
