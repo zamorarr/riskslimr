@@ -16,6 +16,18 @@ predict_auc <- function(lambda, x, y) {
   auc/(n_pos*n_neg)
 }
 
+predict_auc2 <- function(s, y) {
+  ind_pos <- which(y > 0)
+  ind_neg <- which(y <= 0)
+
+  n_pos <- length(ind_pos)
+  n_neg <- length(ind_neg)
+
+  auc <- vapply(ind_pos, function(i) sum(s[i] > s[ind_neg]), integer(1))
+  auc <- sum(auc)
+  auc/(n_pos*n_neg)
+}
+
 predict_risk <- function(lambda, x) {
   score <- predict_score(lambda, x)
   u <- 1 + exp(-score)

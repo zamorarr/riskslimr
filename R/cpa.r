@@ -60,7 +60,7 @@ cpa <- function(x, y, ...) {
     }
 
     # store solutions
-    cat(sprintf("[%s] optimality gap: %.01f%% solution: %s\n", k, 100*eps, paste(lambda_k, collapse = ", ")))
+    cat(sprintf("[%s] L: %.01f loss_approx: %.01f optimality gap: %.01f%% solution: %s\n", k, L_k, loss(lambda_k), 100*eps, paste(lambda_k, collapse = ", ")))
 
     # check termination conditions
     k <- k + 1L
