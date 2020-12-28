@@ -52,18 +52,12 @@ public:
 
   inline void lazyCut(const IloCplex::Callback::Context &context) {
     IloEnv env = context.getEnv();
-    //env.out() << "================================\n";
-    //env.out() << "in lazy cut!!\n";
-    //env.out() << "candidate objective: " << context.getCandidateObjective()  << endl;
-    //env.out() << "candidate L: " << context.getCandidatePoint(L) << endl;
 
     //env.out() << "candidate lambda: [" ;
     arma::vec lambda_val(lambda.getSize());
     for (int j = 0; j < lambda.getSize(); j++) {
       lambda_val[j] = context.getCandidatePoint(lambda[j]);
-      //env.out() << lambda_val[j] << ", ";
     }
-    //env.out() << "]" << endl;
 
     // calculate actual loss at this lambda
     // compare that to the candidate objective
@@ -77,7 +71,6 @@ public:
     // add lazy constraint
     double loss_point = computer->loss(lambda_val);
     arma::vec loss_slope = computer->loss_grad(lambda_val);
-    //env.out() << "actual loss: " << loss_point << endl;
 
     // check that loss_point is ?
     double L_val = context.getCandidatePoint(L);
@@ -93,21 +86,6 @@ public:
     }
 
     context.rejectCandidate(L - loss_point - sum_expr >= 0.0);
-    //env.out() << "adding this constraint: L >= " << loss_point << " + <";
-    //for (int j = 0; j < lambda.getSize(); j++) {
-    //if (j > 0) env.out() << ", ";
-    //env.out() << std::round(loss_slope[j]*100)/100;
-    //}
-    //env.out() << ">(lambda - <";
-    //for (int j = 0; j < lambda.getSize(); j++) {
-    //if (j > 0) env.out() << ", ";
-    //env.out() << lambda_val[j];
-    //}
-    //env.out() << ">)" << endl;
-
-
-    // addUserCut not valid in this context?
-    //context.addUserCut(L - loss_point - sum_expr >= 0, IloCplex::UseCutForce, IloFalse);
     sum_expr.end();
 
   }
@@ -172,12 +150,10 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3) {
 
       if (j == 0) {
         lambda[j] = IloIntVar(env, intercept_min, intercept_max);
-        //model.add(intercept_min*alpha[j] <= lambda[j] <= intercept_max*alpha[j]);
         model.add(lambda[j] - intercept_min*alpha[j] >= 0);
         model.add(lambda[j] - intercept_max*alpha[j] <= 0);
       } else {
         lambda[j] = IloIntVar(env, coef_min, coef_max);
-        //model.add(coef_min*alpha[j] <= lambda[j] <= coef_max*alpha[j]);
         model.add(lambda[j] - coef_min*alpha[j] >= 0);
         model.add(lambda[j] - coef_max*alpha[j] <= 0);
       }
@@ -193,7 +169,6 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3) {
     IloCplex cplex(model);
 
     // add lazy callback
-    //cplex.use(LazyCallback(env, lambda));
     // We instantiate a FacilityCallback and set the contextMask parameter.
     LossCutCallback cb(lambda, L, &computer);
     CPXLONG contextMask = 0;
@@ -211,26 +186,26 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3) {
 
     IloNumArray alpha_vals(env);
     cplex.getValues(alpha_vals, alpha);
+    std::vector<int> alpha_vec;
 
     IloNumArray lambda_vals(env);
     cplex.getValues(lambda_vals, lambda);
-    std::vector<double> lambda_vec;
+    std::vector<int> lambda_vec;
+
     for (int j = 0; j < d; j++) {
+      alpha_vec.push_back(alpha_vals[j]);
       lambda_vec.push_back(lambda_vals[j]);
     }
 
     Rcpp::List result = Rcpp::List::create(
       //Rcpp::Named("status") = cplex.getStatus(),
       Rcpp::Named("objective_value") = cplex.getObjValue(),
-      //Rcpp::Named("alpha") = alpha_vals,
+      Rcpp::Named("alpha") = alpha_vec,
       Rcpp::Named("lambda") = lambda_vec
     );
 
     env.end();
     return result;
-
-
-
     //env.out() << "optimality gap: " << 1 - cplex.getObjValue()/(computer.loss(arma::vec(lambda_vec)) + c0*cplex.getValue(R)) << endl;
     //env.out() << "titanic should have been lambda = [-3, 1, 2, 0]: " << computer.loss(arma::vec("-3;1;2;0")) + c0*3 << endl;
 

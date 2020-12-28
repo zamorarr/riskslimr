@@ -28,6 +28,13 @@ predict_auc2 <- function(s, y) {
   auc/(n_pos*n_neg)
 }
 
+predict_auc3 <- function(lambda, df, formula) {
+  x <- model.matrix(formula, df)
+  colnames(x)[1] <- ""
+  y <- df[[all.vars(formula)[1]]]
+  predict_auc(lambda, x, y)
+}
+
 predict_risk <- function(lambda, x) {
   score <- predict_score(lambda, x)
   u <- 1 + exp(-score)
