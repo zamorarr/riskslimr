@@ -52,7 +52,9 @@ lcpa.data.frame <- function(df, formula, R_max = NULL, ...) {
 
   # determine R_max if not provided
   if (is.null(R_max)) {
-    R_max <- ncols(x)
+    R_max <- ncol(x)
+  } else {
+    R_max <- as.integer(R_max)
   }
 
   # do lcpa

@@ -122,7 +122,7 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3) {
 
   // inputs
   int d = x.n_cols;
-  double c0 = 1E-6;
+  double c0 = 1E-8;
   int R_min = 1;
   R_max = std::min(R_max, d);
   int intercept_min = -10;

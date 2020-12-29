@@ -4,7 +4,7 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
   cal %>%
     ggplot2::ggplot(ggplot2::aes(x = predicted, y = observed)) +
     ggplot2::geom_abline(linetype = "dashed") +
-    ggplot2::geom_point() +
+    ggplot2::geom_point(ggplot2::aes(size = n)) +
     ggplot2::scale_x_continuous(limits = c(0, 1)) +
     ggplot2::scale_y_continuous(limits = c(0, 1)) +
     ggplot2::labs(
