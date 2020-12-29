@@ -25,9 +25,14 @@ feature_matrix_from_data <- function(df, formula) {
 }
 
 response_var_from_data <- function(df, formula) {
-  y <- df[[all.vars(formula)[1]]]
+  y_name <- response_name_from_formula(formula)
+  y <- df[[y_name]]
   stopifnot(all(y %in% c(-1L, 1L)))
   y
+}
+
+response_name_from_formula <- function(formula) {
+  all.vars(formula)[1]
 }
 
 score_to_prob <- function(score) {

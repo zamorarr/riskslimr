@@ -61,6 +61,7 @@ eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
       dplyr::pull(cal)
   } else {
     #dplyr::ungroup(df)
-    df
+    df %>%
+      dplyr::mutate(cal = cal/n) # cal = abs(predicted - observed)
   }
 }
