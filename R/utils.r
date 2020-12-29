@@ -17,3 +17,23 @@ show_constraints <- function(model) {
   #x$sense
   #x$rhs
 }
+
+feature_matrix_from_data <- function(df, formula) {
+  x <- model.matrix(formula, df)
+  colnames(x)[1] <- "[intercept]" # intercept name
+  x
+}
+
+response_var_from_data <- function(df, formula) {
+  y <- df[[all.vars(formula)[1]]]
+  stopifnot(all(y %in% c(-1L, 1L)))
+  y
+}
+
+score_to_prob <- function(score) {
+  1/(1 + exp(-score))
+}
+
+prob_to_score <- function(prob) {
+  -log(1/prob - 1)
+}

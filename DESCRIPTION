@@ -17,7 +17,8 @@ Imports:
     ompr,
     ompr.roi,
     recipes,
-    Rcpp
+    Rcpp,
+    generics
 Suggests: 
     testthat (>= 2.1.0)
 Depends: 

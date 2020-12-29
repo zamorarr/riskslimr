@@ -1,82 +1,66 @@
-predict_score <- function(lambda, x) {
-  as.vector(x %*% lambda)
-}
+#' @export
+eval_auc <- function(model_fit, new_data, ...) UseMethod("eval_auc")
+eval_auc.lcpa_fit <- function(model_fit, new_data, ...) {
+  # get response variable
+  formula <- model_fit$formula
+  y <- response_var_from_data(new_data, formula)
 
-predict_auc <- function(lambda, x, y) {
   ind_pos <- which(y > 0)
   ind_neg <- which(y <= 0)
 
   n_pos <- length(ind_pos)
   n_neg <- length(ind_neg)
 
-  s <- predict_score(lambda, x)
+  s <- predict.lcpa_fit(model_fit, new_data, type = "score")
 
   auc <- vapply(ind_pos, function(i) sum(s[i] > s[ind_neg]), integer(1))
   auc <- sum(auc)
   auc/(n_pos*n_neg)
 }
 
-predict_auc2 <- function(s, y) {
-  ind_pos <- which(y > 0)
-  ind_neg <- which(y <= 0)
-
-  n_pos <- length(ind_pos)
-  n_neg <- length(ind_neg)
-
-  auc <- vapply(ind_pos, function(i) sum(s[i] > s[ind_neg]), integer(1))
-  auc <- sum(auc)
-  auc/(n_pos*n_neg)
-}
-
-predict_auc3 <- function(lambda, df, formula) {
-  x <- model.matrix(formula, df)
-  colnames(x)[1] <- ""
-  y <- df[[all.vars(formula)[1]]]
-  predict_auc(lambda, x, y)
-}
-
-predict_risk <- function(lambda, x) {
-  score <- predict_score(lambda, x)
-  u <- 1 + exp(-score)
-  as.vector(1/u)
-}
-
-eval_calibration <- function(lambda, x, y, has_plot = TRUE) {
-  score <- predict_score(lambda, x)
+#' @export
+eval_cal <- function(model_fit, new_data, grouped = FALSE, ...) UseMethod("eval_cal")
+eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
+  score <- predict.lcpa_fit(model_fit, new_data)
+  prob <- score_to_prob(score)
+  y <- response_var_from_data(new_data, model_fit$formula)
 
   # determine if we need to bin
   needs_bins <- length(unique(score)) > 10
   if (needs_bins) {
     breaks <- seq(0, 1, 0.1)
+    score_breaks <- c(-Inf, -3, -2, -1, 0, 1, 2, 3, Inf)
+    #print(breaks)
+    #breaks[1] <- score_to_prob(min(score))
+    #breaks[length(breaks)] <- score_to_prob(max(score))
+    #print(breaks)
   } else {
     breaks <- NULL
   }
 
   df <- tibble::tibble(
-    predicted = predict_risk(lambda, x),
-    predicted_bins = if (needs_bins) cut(predicted, breaks) else score,
-    y = as.integer(y[,1] > 0)
-    ) %>%
-    dplyr::group_by(predicted_bins) %>%
-    dplyr::mutate(observed = mean(y), cal = abs(predicted - observed))
+    predicted = score_to_prob(score),
+    score_bins = if (needs_bins) cut(score, score_breaks, right = FALSE) else score,
+    #predicted_bins = if (needs_bins) cut(predicted, breaks) else score,
+    #score_bins = if (needs_bins) paste0(
+    #  "(",
+    #  ceiling(prob_to_score(as.numeric(stringr::str_match(predicted_bins, "^\\((.*),")[,2]))),
+    #  ",",
+    #  floor(prob_to_score(as.numeric(stringr::str_match(predicted_bins, ",(.*)\\]$")[,2]))),
+    #  "]") else score,
+    y = as.integer(y > 0)
+  ) %>%
+    dplyr::group_by(score_bins) %>%
+    dplyr::mutate(observed = mean(y), cal = abs(predicted - observed)) %>%
+    dplyr::summarize(predicted = mean(predicted), observed = mean(observed), cal = sum(cal), n = dplyr::n()) %>%
+    dplyr::ungroup()
 
-  if (has_plot) {
-    p <- df %>%
-      dplyr::ungroup() %>%
-      ggplot2::ggplot(ggplot2::aes(x = predicted, y = observed)) +
-      ggplot2::geom_abline(linetype = "dashed") +
-      ggplot2::geom_point() +
-      ggplot2::scale_x_continuous(limits = c(0, 1)) +
-      ggplot2::scale_y_continuous(limits = c(0, 1)) +
-      ggplot2::labs(x = "predicted risk", y = "observed risk") +
-      ggplot2::theme_minimal()
-
-    print(p)
+  if (!grouped) {
+    df %>%
+      dplyr::summarize(cal = sum(cal)/sum(n)) %>%
+      dplyr::pull(cal)
+  } else {
+    #dplyr::ungroup(df)
+    df
   }
-
-  df %>%
-    dplyr::summarize(cal = sum(cal), n = dplyr::n()) %>%
-    dplyr::ungroup() %>%
-    dplyr::summarize(cal = sum(cal)/sum(n)) %>%
-    dplyr::pull(cal)
 }
