@@ -65,3 +65,44 @@ eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
       dplyr::mutate(cal = cal/n) # cal = abs(predicted - observed)
   }
 }
+
+#' @export
+eval_precision <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_precision")
+eval_precision.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
+  y_actual <- response_var_from_data(new_data, model_fit$formula)
+
+  probs <- predict.lcpa_fit(model_fit, new_data, type = "response")
+
+  vapply(threshold, function(r) {
+    y_est <- 2L*(probs >= r) - 1L
+
+    # precision is "pct correct of the ones you predict to be 1"
+    idx <- which(y_est == 1)
+    n <- length(idx)
+
+    if (n == 0) return(1)
+
+    n_correct <- sum(y_actual[idx] == 1)
+    n_correct/n
+  }, double(1))
+
+}
+
+#' @export
+eval_recall <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_recall")
+eval_recall.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
+  y_actual <- response_var_from_data(new_data, model_fit$formula)
+
+  probs <- predict.lcpa_fit(model_fit, new_data, type = "response")
+
+  vapply(threshold, function(r) {
+    y_est <- 2L*(probs >= r) - 1L
+
+    # recall is "pct of actual 1s you returned as 1"
+    idx <- which(y_actual == 1)
+    n <- length(idx)
+    n_correct <- sum(y_est[idx] == 1)
+    n_correct/n
+  }, FUN.VALUE = double(1))
+
+}

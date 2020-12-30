@@ -18,9 +18,25 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
       y = "observed risk") +
     ggplot2::theme_minimal()
 
+  # precision-recall plot
+  thresholds <- seq(0, 1, 0.1)
+  df_prec_rec <- tibble::tibble(
+    threshold = thresholds,
+    precision = eval_precision(r, new_data, thresholds),
+    recall = eval_recall(r, new_data, thresholds)
+    )
+
+  p2 <- ggplot2::ggplot(df_prec_rec, ggplot2::aes(x = precision, y = recall, color = thresholds)) +
+    ggplot2::geom_point() +
+    ggplot2::scale_x_continuous(limits = c(0, 1)) +
+    ggplot2::scale_y_continuous(limits = c(0, 1)) +
+    ggplot2::scale_color_viridis_c("threshold") +
+    ggplot2::labs(title = "Precision vs Recall", subtitle = sprintf("auc: %0.3f", auc_val)) +
+    ggplot2::theme_minimal()
+
   # prediction plot
   y_name <- response_name_from_formula(r$formula)
-  p2 <- augment.lcpa_fit(r, new_data) %>%
+  p3 <- augment.lcpa_fit(r, new_data) %>%
     ggplot2::ggplot(ggplot2::aes(x = score)) +
     ggplot2::geom_histogram(
       ggplot2::aes(fill = factor(.data[[y_name]])),
@@ -30,9 +46,9 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
       #position = "dodge2",
       alpha = 0.5) +
     ggplot2::scale_fill_discrete(y_name) +
-    ggplot2::labs(title = "Predictions vs Score", subtitle = sprintf("auc: %0.3f", auc_val)) +
+    ggplot2::labs(title = "Score Distribution") +
     ggplot2::theme_minimal()
 
   # return plots
-  gridExtra::grid.arrange(p1, p2)
+  gridExtra::grid.arrange(p1, p2, p3)
 }
