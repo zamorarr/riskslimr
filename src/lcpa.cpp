@@ -112,7 +112,7 @@ void LossCutCallback::invoke(const IloCplex::Callback::Context &context) {
 
 
 // [[Rcpp::export]]
-Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3) {
+Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 60) {
   // create environment
   IloEnv env;
 
@@ -174,6 +174,9 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3) {
     CPXLONG contextMask = 0;
     contextMask |= IloCplex::Callback::Context::Id::Candidate;
     cplex.use(&cb, contextMask);
+
+    // cplex parameters
+    cplex.setParam(IloCplex::Param::TimeLimit, time_limit); // 60 seconds
 
     // solve model
     if ( !cplex.solve() ) {

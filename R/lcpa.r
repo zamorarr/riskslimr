@@ -1,9 +1,9 @@
 # follow these conventions:
 # https://tidymodels.github.io/model-implementation-principles/index.html
 
-compute_lcpa <- function(x, y, R_max = 3L) {
+compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60) {
   # do lcpa
-  r <- lcpa_cpp(x, y, R_max)
+  r <- lcpa_cpp(x, y, R_max, time_limit)
 
   # add solution string
   lambda <- r$lambda
@@ -43,7 +43,7 @@ lcpa.default <- function(x, ...) {
 
 #' @rdname lcpa
 #' @export
-lcpa.data.frame <- function(df, formula, R_max = NULL, ...) {
+lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, ...) {
   # build feature matrix
   x <- feature_matrix_from_data(df, formula)
 
@@ -58,7 +58,7 @@ lcpa.data.frame <- function(df, formula, R_max = NULL, ...) {
   }
 
   # do lcpa
-  r <- compute_lcpa(x, y, R_max)
+  r <- compute_lcpa(x, y, R_max, time_limit)
 
   # add some useful info
   r$formula <- formula

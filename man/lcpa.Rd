@@ -10,7 +10,8 @@ lcpa(x, ...)
 
 \method{lcpa}{default}(x, ...)
 
-\method{lcpa}{data.frame}(df, formula, R_max = NULL, ...)
+\method{lcpa}{data.frame}(df, formula, R_max = NULL, time_limit = 60,
+  ...)
 }
 \description{
 Lattice Cutting Plane Algorithm
