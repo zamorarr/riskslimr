@@ -3,6 +3,7 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
   cal <- eval_cal.lcpa_fit(model_fit, new_data, grouped = TRUE)
   cal_val <- eval_cal.lcpa_fit(model_fit, new_data, grouped = FALSE)
   auc_val <- eval_auc.lcpa_fit(model_fit, new_data)
+  y_name <- response_name_from_formula(r$formula)
 
   # calibration plot
   p1 <- cal %>%
@@ -24,7 +25,7 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
     threshold = thresholds,
     precision = eval_precision(r, new_data, thresholds),
     recall = eval_recall(r, new_data, thresholds)
-    )
+  )
 
   p2 <- ggplot2::ggplot(df_prec_rec, ggplot2::aes(x = precision, y = recall, color = thresholds)) +
     ggplot2::geom_point() +
@@ -34,9 +35,26 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
     ggplot2::labs(title = "Precision vs Recall", subtitle = sprintf("auc: %0.3f", auc_val)) +
     ggplot2::theme_minimal()
 
+  # accuracy plot
+  acc <- tibble::tibble(
+    threshold = seq(0, 1, 0.1),
+    acc = eval_accuracy(model_fit, new_data, threshold = threshold)
+  )
+  acc_baseline <- mean(new_data[[y_name]] == 1)
+  if (acc_baseline < 0.5) acc_baseline <- 1 - acc_baseline
+
+  p3 <- ggplot2::ggplot(acc, ggplot2::aes(x = threshold, y = acc)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_line() +
+    ggplot2::geom_hline(yintercept = acc_baseline, linetype = "dashed", color = "red") +
+    ggplot2::scale_x_continuous(limits = c(0, 1)) +
+    ggplot2::scale_y_continuous("accuracy", limits = c(0, 1)) +
+    ggplot2::labs(title = "Accuracy") +
+    ggplot2::theme_minimal()
+
+
   # prediction plot
-  y_name <- response_name_from_formula(r$formula)
-  p3 <- augment.lcpa_fit(r, new_data) %>%
+  p4 <- augment.lcpa_fit(r, new_data) %>%
     ggplot2::ggplot(ggplot2::aes(x = score)) +
     ggplot2::geom_histogram(
       ggplot2::aes(fill = factor(.data[[y_name]])),
@@ -50,5 +68,5 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
     ggplot2::theme_minimal()
 
   # return plots
-  gridExtra::grid.arrange(p1, p2, p3)
+  gridExtra::grid.arrange(p1, p2, p3, p4)
 }
