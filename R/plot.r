@@ -37,7 +37,8 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
 
   # accuracy plot
   acc <- tibble::tibble(
-    threshold = seq(0, 1, 0.1),
+    score_threshold = seq(-4, 4),
+    threshold = score_to_prob(score_threshold), #seq(0, 1, 0.1),
     acc = eval_accuracy(model_fit, new_data, threshold = threshold)
   )
   acc_baseline <- mean(new_data[[y_name]] == 1)
