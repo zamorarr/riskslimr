@@ -106,3 +106,15 @@ eval_recall.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
   }, FUN.VALUE = double(1))
 
 }
+
+#' @export
+eval_accuracy <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_accuracy")
+eval_accuracy.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
+  y_actual <- response_var_from_data(new_data, model_fit$formula)
+  probs <- predict.lcpa_fit(model_fit, new_data, type = "response")
+
+  vapply(threshold, function(r) {
+    y_est <- 2L*(probs >= r) - 1L
+    mean(y_est == y_actual)
+  }, double(1))
+}

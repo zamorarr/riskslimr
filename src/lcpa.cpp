@@ -186,7 +186,6 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 60
     // write out model for inspection
     //cplex.exportModel("model2.lp");
 
-
     IloNumArray alpha_vals(env);
     cplex.getValues(alpha_vals, alpha);
     std::vector<int> alpha_vec;
@@ -203,6 +202,7 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 60
     Rcpp::List result = Rcpp::List::create(
       //Rcpp::Named("status") = cplex.getStatus(),
       Rcpp::Named("objective_value") = cplex.getObjValue(),
+      Rcpp::Named("optimality_gap") = cplex.getMIPRelativeGap(),
       Rcpp::Named("alpha") = alpha_vec,
       Rcpp::Named("lambda") = lambda_vec
     );
