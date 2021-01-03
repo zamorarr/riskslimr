@@ -34,14 +34,10 @@ glance.lcpa_fit <- function(x, ...) {
 
 #' @export
 augment.lcpa_fit <- function(x, new_data, ...) {
-  results <- tibble::tibble(
-    score = predict.lcpa_fit(x, new_data, type = "score"),
-    prob = 1/(1 + exp(-score))
-  )
+  score <- predict.lcpa_fit(x, new_data, type = "score")
+  prob <- score_to_prob(score)
+  results <- tibble::tibble(score = score, prob = prob)
 
-  dplyr::bind_cols(
-    new_data,
-    results
-  )
-  #results
+  # bind results to data
+  dplyr::bind_cols(new_data, results)
 }

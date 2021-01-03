@@ -87,7 +87,6 @@ public:
 
     context.rejectCandidate(L - loss_point - sum_expr >= 0.0);
     sum_expr.end();
-
   }
 
   // This is the function that we have to implement and that CPLEX will call
@@ -112,7 +111,7 @@ void LossCutCallback::invoke(const IloCplex::Callback::Context &context) {
 
 
 // [[Rcpp::export]]
-Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 60) {
+Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, std::string logfile, int R_max = 3, int time_limit = 60) {
   // create environment
   IloEnv env;
 
@@ -177,6 +176,15 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 60
 
     // cplex parameters
     cplex.setParam(IloCplex::Param::TimeLimit, time_limit); // 60 seconds
+    //cplex.setParam(IloCplex::Param::MIP::Display, 0);
+
+    // set output
+    std::ofstream outstream(logfile);
+    cplex.setOut(outstream);
+    //cplex.setOut(Rcpp::Rcout);
+    //cplex.setOut(env.getNullStream());
+    cplex.setError(Rcpp::Rcerr);
+    cplex.setWarning(Rcpp::Rcout);
 
     // solve model
     if ( !cplex.solve() ) {
@@ -209,9 +217,6 @@ Rcpp::List lcpa_cpp(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 60
 
     env.end();
     return result;
-    //env.out() << "optimality gap: " << 1 - cplex.getObjValue()/(computer.loss(arma::vec(lambda_vec)) + c0*cplex.getValue(R)) << endl;
-    //env.out() << "titanic should have been lambda = [-3, 1, 2, 0]: " << computer.loss(arma::vec("-3;1;2;0")) + c0*3 << endl;
-
   }
   catch (IloException& e) {
     Rcpp::stop("Concert exception caught");

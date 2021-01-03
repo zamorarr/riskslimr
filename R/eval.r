@@ -1,3 +1,8 @@
+#' Evaluation Metrics
+#'
+#' @param model_fit model fit from \code{lcpa}
+#' @param new_data data frame
+#' @param threshold vector of values to use as threshold cutoffs
 #' @export
 eval_auc <- function(model_fit, new_data, ...) UseMethod("eval_auc")
 eval_auc.lcpa_fit <- function(model_fit, new_data, ...) {
@@ -18,7 +23,9 @@ eval_auc.lcpa_fit <- function(model_fit, new_data, ...) {
   auc/(n_pos*n_neg)
 }
 
+#' @rdname eval_auc
 #' @export
+#' @importFrom rlang .data
 eval_cal <- function(model_fit, new_data, grouped = FALSE, ...) UseMethod("eval_cal")
 eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
   score <- predict.lcpa_fit(model_fit, new_data)
@@ -38,21 +45,20 @@ eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
     breaks <- NULL
   }
 
-  df <- tibble::tibble(
-    predicted = score_to_prob(score),
-    score_bins = if (needs_bins) cut(score, score_breaks, right = FALSE) else score,
-    #predicted_bins = if (needs_bins) cut(predicted, breaks) else score,
-    #score_bins = if (needs_bins) paste0(
-    #  "(",
-    #  ceiling(prob_to_score(as.numeric(stringr::str_match(predicted_bins, "^\\((.*),")[,2]))),
-    #  ",",
-    #  floor(prob_to_score(as.numeric(stringr::str_match(predicted_bins, ",(.*)\\]$")[,2]))),
-    #  "]") else score,
-    y = as.integer(y > 0)
-  ) %>%
-    dplyr::group_by(score_bins) %>%
-    dplyr::mutate(observed = mean(y), cal = abs(predicted - observed)) %>%
-    dplyr::summarize(predicted = mean(predicted), observed = mean(observed), cal = sum(cal), n = dplyr::n()) %>%
+  predicted <- score_to_prob(score)
+  score_bins <- if (needs_bins) cut(score, score_breaks, right = FALSE) else score
+
+  df <- tibble::tibble("predicted" = predicted, "score_bins" = score_bins, "y" = as.integer(y > 0))
+  df <- df %>%
+    dplyr::group_by(.data$score_bins) %>%
+    dplyr::mutate(
+      "observed" = mean(.data$y),
+      "cal" = abs(predicted - observed)) %>%
+    dplyr::summarize(
+      "predicted" = mean(predicted),
+      "observed" = mean(observed),
+      "cal" = sum(cal),
+      "n" = dplyr::n()) %>%
     dplyr::ungroup()
 
   if (!grouped) {
@@ -66,6 +72,8 @@ eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
   }
 }
 
+
+#' @rdname eval_auc
 #' @export
 eval_precision <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_precision")
 eval_precision.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
@@ -88,6 +96,8 @@ eval_precision.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
 
 }
 
+
+#' @rdname eval_auc
 #' @export
 eval_recall <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_recall")
 eval_recall.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
@@ -107,6 +117,8 @@ eval_recall.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
 
 }
 
+
+#' @rdname eval_auc
 #' @export
 eval_accuracy <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_accuracy")
 eval_accuracy.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {

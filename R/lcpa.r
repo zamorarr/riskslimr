@@ -1,9 +1,11 @@
 # follow these conventions:
 # https://tidymodels.github.io/model-implementation-principles/index.html
 
-compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60) {
+compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_logfile()) {
   # do lcpa
-  r <- lcpa_cpp(x, y, R_max, time_limit)
+  logfile <- normalizePath(logfile, mustWork = FALSE)
+  cat(sprintf("writing solver log to %s\n", logfile))
+  r <- lcpa_cpp(x, y, logfile, R_max, time_limit)
 
   # add solution string
   lambda <- r$lambda
@@ -43,7 +45,7 @@ lcpa.default <- function(x, ...) {
 
 #' @rdname lcpa
 #' @export
-lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, ...) {
+lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile = random_logfile(), ...) {
   # build feature matrix
   x <- feature_matrix_from_data(df, formula)
 
@@ -58,7 +60,7 @@ lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, ...) {
   }
 
   # do lcpa
-  r <- compute_lcpa(x, y, R_max, time_limit)
+  r <- compute_lcpa(x, y, R_max, time_limit, logfile)
 
   # add some useful info
   r$formula <- formula

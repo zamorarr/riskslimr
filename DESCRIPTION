@@ -8,24 +8,21 @@ Authors@R:
            email = "zamora.rr@gmail.com")
 Description: What the package does (one paragraph).
 License: What license it uses
-Encoding: UTF-8
-Language: en-US
-LazyData: true
-RoxygenNote: 6.1.1
-Imports: 
-    magrittr,
-    ompr,
-    ompr.roi,
-    recipes,
-    Rcpp,
-    generics
-Suggests: 
-    testthat (>= 2.1.0)
-Depends: 
-    ROI.plugin.glpk
 URL: https://github.com/zamorarr/riskslimr
 BugReports: https://github.com/zamorarr/riskslimr/issues
+Imports: 
+    generics,
+    magrittr,
+    Rcpp,
+    recipes,
+    rlang
+Suggests: 
+    testthat (>= 2.1.0)
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 Biarch: TRUE
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 6.1.1

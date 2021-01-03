@@ -2,30 +2,43 @@
 # Use 'define()' to define configuration variables.
 # Use 'configure_file()' to substitute configuration values.
 
+parse_args <- function(args) {
+  #m <- regexec("^--with-cplex-studio-dir=(.*)$", args[1])
+  #r <- regmatches(args[1], m)[[1]]
+
+  x <- strsplit(args, "=")
+  varnames <- vapply(x, function(xi) xi[1], character(1))
+  varnames <- gsub("^--", "", varnames)
+  vars <- lapply(x, function(xi) trimws(xi[2]))
+  setNames(vars, varnames)
+}
+
 # get configure args
 args <- commandArgs(TRUE)
 if (length(args) > 1 && args[1] == "configure") {
   args <- args[-1]
+  args <- parse_args(args)
 }
 
 # get studio dir
 studio_dir <- Sys.getenv("CPLEX_STUDIO_DIR")
 has_env_var <- !identical(studio_dir, "")
-has_configure_var <- grepl("^--with-cplex-studio-dir=", args[1])
+has_configure_var <- "with-cplex-studio-dir" %in% names(args)
 
 if (!has_env_var && !has_configure_var) {
   # R CMD INSTALL --preclean --no-multiarch --with-keep.source --configure-args="--with-cplex-studio-dir='/home/bobby/opt/ibm/ILOG/CPLEX_Studio_Community201'" riskslimr
   stop("must provide either a CPLEX_STUDIO_DIR environment variable or a --with-cplex-studio-dir=/path/to/dir argument to configure-args", call. = FALSE)
-} else if (!has_env_var) {
+} else if (has_configure_var) {
   # no environment variable. look for configure dir in options
-  m <- regexec("^--with-cplex-studio-dir=(.*)$", args[1])
-  r <- regmatches(args[1], m)[[1]]
-  studio_dir <- r[2]
-  studio_dir <- gsub("'", "", studio_dir)
+  studio_dir <- args[["with-cplex-studio-dir"]]
 }
 
 # determine studio directory
-studio_dir <- normalizePath(studio_dir, mustWork = TRUE)
+studio_dir <- normalizePath(studio_dir, mustWork = FALSE)
+if (!dir.exists(studio_dir)) {
+  stop(sprintf("directory %s does not exist\n", studio_dir), call. = FALSE)
+}
+
 cat(sprintf("using cplex studio dir: %s\n", studio_dir))
 
 # generate directory params
