@@ -1,12 +1,43 @@
 # Prepare your package for installation here.
 # Use 'define()' to define configuration variables.
 # Use 'configure_file()' to substitute configuration values.
-print("CONFIGURE!")
 
-CPLEX_INCLUDE_PATH <- "/home/bobby/opt/ibm/ILOG/CPLEX_Studio_Community201/cplex/include"
-CONCERT_INCLUDE_PATH <- "/home/bobby/opt/ibm/ILOG/CPLEX_Studio_Community201/concert/include"
-CPLEX_LINK_PATH <- "/home/bobby/opt/ibm/ILOG/CPLEX_Studio_Community201/cplex/lib/x86-64_linux/static_pic"
-CONCERT_LINK_PATH <- "/home/bobby/opt/ibm/ILOG/CPLEX_Studio_Community201/concert/lib/x86-64_linux/static_pic"
+# get configure args
+args <- commandArgs(TRUE)
+if (length(args) > 1 && args[1] == "configure") {
+  args <- args[-1]
+}
+
+# get studio dir
+studio_dir <- Sys.getenv("CPLEX_STUDIO_DIR")
+has_env_var <- !identical(studio_dir, "")
+has_configure_var <- grepl("^--with-cplex-studio-dir=", args[1])
+
+if (!has_env_var && !has_configure_var) {
+  # R CMD INSTALL --preclean --no-multiarch --with-keep.source --configure-args="--with-cplex-studio-dir='/home/bobby/opt/ibm/ILOG/CPLEX_Studio_Community201'" riskslimr
+  stop("must provide either a CPLEX_STUDIO_DIR environment variable or a --with-cplex-studio-dir=/path/to/dir argument to configure-args", call. = FALSE)
+} else if (!has_env_var) {
+  # no environment variable. look for configure dir in options
+  m <- regexec("^--with-cplex-studio-dir=(.*)$", args[1])
+  r <- regmatches(args[1], m)[[1]]
+  studio_dir <- r[2]
+  studio_dir <- gsub("'", "", studio_dir)
+}
+
+# determine studio directory
+studio_dir <- normalizePath(studio_dir, mustWork = TRUE)
+cat(sprintf("using cplex studio dir: %s\n", studio_dir))
+
+# generate directory params
+cplex_dir <- file.path(studio_dir, "cplex")
+concert_dir <- file.path(studio_dir, "concert")
+arch <- list.files(file.path(cplex_dir, "bin"))
+
+# generate include paths and linking paths
+CPLEX_INCLUDE_PATH <- file.path(cplex_dir, "include")
+CONCERT_INCLUDE_PATH <- file.path(concert_dir, "include")
+CPLEX_LINK_PATH <- file.path(cplex_dir, "lib", arch, "static_pic")
+CONCERT_LINK_PATH <- file.path(concert_dir, "lib", arch, "static_pic")
 
 define(
   CXX_STD = "CXX11",
@@ -14,6 +45,8 @@ define(
   "PKG_CXXFLAGS" = sprintf("$(SHLIB_OPENMP_CXXFLAGS) -I%s -I%s", CPLEX_INCLUDE_PATH, CONCERT_INCLUDE_PATH),
   "PKG_LIBS" = sprintf("$(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -L%s -L %s -lconcert -lilocplex -lcplex -lm -lpthread", CPLEX_LINK_PATH, CONCERT_LINK_PATH)
   )
+
+#print(configure_database())
 
 
 configure_file("src/Makevars.in")
