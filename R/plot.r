@@ -50,7 +50,9 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
     ggplot2::geom_hline(yintercept = acc_baseline, linetype = "dashed", color = "red") +
     ggplot2::scale_x_continuous(limits = c(0, 1)) +
     ggplot2::scale_y_continuous("accuracy", limits = c(0, 1)) +
-    ggplot2::labs(title = "Accuracy") +
+    ggplot2::labs(
+      title = "Accuracy",
+      subtitle = sprintf("max: %0.02f (threshold = %0.02f)", max(acc$acc), acc$threshold[which.max(acc$acc)[1]])) +
     ggplot2::theme_minimal()
 
 
