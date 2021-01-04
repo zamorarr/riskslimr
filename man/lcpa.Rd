@@ -11,7 +11,7 @@ lcpa(x, ...)
 \method{lcpa}{default}(x, ...)
 
 \method{lcpa}{data.frame}(df, formula, R_max = NULL, time_limit = 60,
-  ...)
+  logfile = random_logfile(), ...)
 }
 \description{
 Lattice Cutting Plane Algorithm
