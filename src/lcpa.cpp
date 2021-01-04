@@ -82,7 +82,7 @@ void LossCutCallback::invoke(const IloCplex::Callback::Context &context) {
       IloNum V = context.getIncumbentObjective();
 
       IloEnv env = context.getEnv();
-      env.setOut(Rcpp::Rcout);
+      //env.setOut(Rcpp::Rcout); // this is causing a C stack overflow error?
       env.out() << "[" << time_current << "] objective value: " << V << "\n";
     }
   }
