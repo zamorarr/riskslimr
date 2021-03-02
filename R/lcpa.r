@@ -1,11 +1,20 @@
 # follow these conventions:
 # https://tidymodels.github.io/model-implementation-principles/index.html
 
-compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_logfile()) {
+compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_logfile(), engine = c("cplex", "glpk")) {
+  engine <- match.arg(engine)
   # do lcpa
   logfile <- normalizePath(logfile, mustWork = FALSE)
   cat(sprintf("writing solver log to %s\n", logfile))
-  r <- lcpa_cpp(x, y, logfile, R_max, time_limit)
+
+  if (identical(engine, "cplex")) {
+    cat("using cplex\n")
+    r <- lcpa_cpp(x, y, logfile, R_max, time_limit)
+  } else {
+    cat("using glpk\n")
+    r <- lcpa_glpk(x, y, R_max, time_limit)
+  }
+
 
   # add solution string
   lambda <- r$lambda
@@ -45,7 +54,9 @@ lcpa.default <- function(x, ...) {
 
 #' @rdname lcpa
 #' @export
-lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile = random_logfile(), ...) {
+lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile = random_logfile(), engine = c("cplex", "glpk"), ...) {
+  engine <- match.arg(engine)
+
   # build feature matrix
   x <- feature_matrix_from_data(df, formula)
 
@@ -60,7 +71,7 @@ lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile 
   }
 
   # do lcpa
-  r <- compute_lcpa(x, y, R_max, time_limit, logfile)
+  r <- compute_lcpa(x, y, R_max, time_limit, logfile, engine = engine)
 
   # add some useful info
   r$formula <- formula

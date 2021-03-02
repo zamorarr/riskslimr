@@ -5,6 +5,10 @@ lcpa_cpp <- function(x, y, logfile, R_max = 3L, time_limit = 60L) {
     .Call(`_riskslimr_lcpa_cpp`, x, y, logfile, R_max, time_limit)
 }
 
+lcpa_glpk <- function(x, y, R_max = 3L, time_limit = 60L) {
+    .Call(`_riskslimr_lcpa_glpk`, x, y, R_max, time_limit)
+}
+
 compute_loss <- function(lambda, x, y) {
     .Call(`_riskslimr_compute_loss`, lambda, x, y)
 }

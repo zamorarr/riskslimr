@@ -21,6 +21,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// lcpa_glpk
+Rcpp::List lcpa_glpk(arma::mat x, arma::vec y, int R_max, int time_limit);
+RcppExport SEXP _riskslimr_lcpa_glpk(SEXP xSEXP, SEXP ySEXP, SEXP R_maxSEXP, SEXP time_limitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type R_max(R_maxSEXP);
+    Rcpp::traits::input_parameter< int >::type time_limit(time_limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(lcpa_glpk(x, y, R_max, time_limit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_loss
 double compute_loss(arma::vec lambda, arma::mat x, arma::vec y);
 RcppExport SEXP _riskslimr_compute_loss(SEXP lambdaSEXP, SEXP xSEXP, SEXP ySEXP) {
@@ -50,6 +64,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_riskslimr_lcpa_cpp", (DL_FUNC) &_riskslimr_lcpa_cpp, 5},
+    {"_riskslimr_lcpa_glpk", (DL_FUNC) &_riskslimr_lcpa_glpk, 4},
     {"_riskslimr_compute_loss", (DL_FUNC) &_riskslimr_compute_loss, 3},
     {"_riskslimr_compute_loss_grad", (DL_FUNC) &_riskslimr_compute_loss_grad, 3},
     {NULL, NULL, 0}
