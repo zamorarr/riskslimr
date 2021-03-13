@@ -3,7 +3,7 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
   cal <- eval_cal.lcpa_fit(model_fit, new_data, grouped = TRUE)
   cal_val <- eval_cal.lcpa_fit(model_fit, new_data, grouped = FALSE)
   auc_val <- eval_auc.lcpa_fit(model_fit, new_data)
-  y_name <- response_name_from_formula(r$formula)
+  y_name <- response_name_from_formula(model_fit$formula)
 
   # calibration plot
   p1 <- cal %>%
@@ -23,8 +23,8 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
   thresholds <- seq(0, 1, 0.1)
   df_prec_rec <- tibble::tibble(
     threshold = thresholds,
-    precision = eval_precision(r, new_data, thresholds),
-    recall = eval_recall(r, new_data, thresholds)
+    precision = eval_precision(model_fit, new_data, thresholds),
+    recall = eval_recall(model_fit, new_data, thresholds)
   )
 
   p2 <- ggplot2::ggplot(df_prec_rec, ggplot2::aes(x = precision, y = recall, color = thresholds)) +
@@ -57,7 +57,7 @@ plot.lcpa_fit <- function(model_fit, new_data, ...) {
 
 
   # prediction plot
-  p4 <- augment.lcpa_fit(r, new_data) %>%
+  p4 <- augment.lcpa_fit(model_fit, new_data) %>%
     ggplot2::ggplot(ggplot2::aes(x = score)) +
     ggplot2::geom_histogram(
       ggplot2::aes(fill = factor(.data[[y_name]])),
