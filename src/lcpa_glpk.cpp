@@ -229,16 +229,14 @@ Rcpp::List lcpa_glpk(arma::mat x, arma::vec y, int R_max = 3, int time_limit = 6
   glp_write_mps(mip, GLP_MPS_FILE, NULL, "problem.mps");
   //glp_write_mip(mip, "mip.lp");
 
-  // trying to fix numerical instability?
-  //glp_scale_prob(mip, GLP_SF_SKIP);
-  //glp_smcp s;
-  //glp_init_smcp(&s);
-  //s.msg_lev = GLP_MSG_ALL;
-  //s.presolve = GLP_ON;
+  // trying to fix numerical instability
+  glp_smcp lp_parm;
+  glp_init_smcp(&lp_parm);
+  lp_parm.meth = GLP_DUALP;
 
   // solve problem
   int ret;
-  ret = glp_simplex(mip, NULL);
+  ret = glp_simplex(mip, &lp_parm);
   //ret = glp_simplex(mip, &s);
   if (ret == 0) {
     glp_intopt(mip, &parm);
