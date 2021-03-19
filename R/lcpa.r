@@ -82,9 +82,54 @@ lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile 
   r
 }
 
+#' @export
 print.lcpa_fit <- function(x, ...) {
   cat("<lcpa fit>\n")
   str(x, 1, give.attr = FALSE)
+}
+
+#' @export
+summary.lcpa_fit <- function(object, ...) {
+  # fit variables
+  vars <- object$vars
+  vars_intercept <- "[intercept]"
+  vars_no_intercept <- vars[vars != vars_intercept]
+
+  lambda <- object$lambda
+  lambda_intercept <- lambda[vars == vars_intercept]
+  lambda_no_intercept <- lambda[vars != vars_intercept]
+
+  ord <- order(lambda_no_intercept)
+  vars_no_intercept <- vars_no_intercept[ord]
+  lambda_no_intercept <- lambda_no_intercept[ord]
+
+  padding <- max(nchar(vars_no_intercept)) + 10
+  adding <- rep("| + .....", length(vars_no_intercept))
+  adding[1] <- "|   ....."
+
+  # features table
+  s_vars <- paste(
+    stringr::str_pad(vars_no_intercept, padding, "right"),
+    stringr::str_pad(lambda_no_intercept, 3),
+    adding
+  )
+
+  s_break <- paste(rep("-", nchar(s_vars[1])), collapse = "")
+  s_vars <- paste(s_vars, collapse = "\n")
+  s_total = paste(
+    stringr::str_pad("TOTAL", padding, "right"),
+    "    | = ....."
+  )
+
+  # risk table
+  scores <- -3:3 - lambda_intercept
+  probs <- sprintf("%s%%", 100*round(score_to_prob(-3:3),2))
+  s_scores <- paste(stringr::str_pad(scores, 4, "both"), collapse = "|")
+  s_probs <- paste(stringr::str_pad(probs, 4, "both"), collapse = "|")
+
+  # combine and print
+  s <- paste(s_vars, s_break, s_total, "", "Risk Table:", s_scores, s_probs, sep = "\n")
+  cat(s)
 }
 
 lcpa_cv <- function(df, formula, R_max, v = 5) {
