@@ -11,8 +11,11 @@ compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_log
     cat("using cplex\n")
     r <- lcpa_cpp(x, y, logfile, R_max, time_limit)
   } else {
-    cat("using glpk\n")
-    r <- lcpa_glpk(x, y, R_max, time_limit)
+    if (requireNamespace("riskslimr.glpk", quietly = TRUE)) {
+      r <- riskslimr.glpk::lcpa_glpk(x, y, R_max, time_limit)
+    } else {
+      stop("Package riskslimr.glpk is not installed. Please install it to use the glpk engine.", call. = FALSE)
+    }
   }
 
 

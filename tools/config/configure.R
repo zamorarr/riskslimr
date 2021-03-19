@@ -57,7 +57,7 @@ define(
   #"PKG_CFLAGS" = "-m64 -fPIC -fno-strict-aliasing -fexceptions -DNDEBUG",
   "PKG_CXXFLAGS" = sprintf("$(SHLIB_OPENMP_CXXFLAGS) -I%s -I%s", CPLEX_INCLUDE_PATH, CONCERT_INCLUDE_PATH),
   #"PKG_LIBS" = sprintf("$(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -L%s -L %s -lconcert -lilocplex -lcplex -lm -lpthread", CPLEX_LINK_PATH, CONCERT_LINK_PATH)
-  "PKG_LIBS" = sprintf("$(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -L%s -L %s -lconcert -lilocplex -lcplex -lm -lpthread -lglpk -lm", CPLEX_LINK_PATH, CONCERT_LINK_PATH)
+  "PKG_LIBS" = sprintf("$(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -L%s -L %s -lconcert -lilocplex -lcplex -lm -lpthread", CPLEX_LINK_PATH, CONCERT_LINK_PATH)
   )
 
 #print(configure_database())
