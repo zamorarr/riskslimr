@@ -97,6 +97,10 @@ summary.lcpa_fit <- function(object, ...) {
 
   lambda <- object$lambda
   lambda_intercept <- lambda[vars == vars_intercept]
+  if (length(lambda_intercept) == 0) {
+    lambda_intercept <- 0
+  }
+
   lambda_no_intercept <- lambda[vars != vars_intercept]
 
   ord <- order(lambda_no_intercept)
