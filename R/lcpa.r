@@ -114,7 +114,7 @@ summary.lcpa_fit <- function(object, ...) {
   # features table
   s_vars <- paste(
     stringr::str_pad(vars_no_intercept, padding, "right"),
-    stringr::str_pad(lambda_no_intercept, 3),
+    stringr::str_pad(paste0("x", lambda_no_intercept), 3),
     adding
   )
 
