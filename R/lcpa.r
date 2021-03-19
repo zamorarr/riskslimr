@@ -90,6 +90,8 @@ print.lcpa_fit <- function(x, ...) {
 
 #' @export
 summary.lcpa_fit <- function(object, ...) {
+  cat(sprintf("predicting: %s\n\n", response_name_from_formula(object$formula)))
+
   # fit variables
   vars <- object$vars
   vars_intercept <- "[intercept]"
