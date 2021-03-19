@@ -103,7 +103,7 @@ summary.lcpa_fit <- function(object, ...) {
 
   lambda_no_intercept <- lambda[vars != vars_intercept]
 
-  ord <- order(lambda_no_intercept)
+  ord <- order(lambda_no_intercept, decreasing = TRUE)
   vars_no_intercept <- vars_no_intercept[ord]
   lambda_no_intercept <- lambda_no_intercept[ord]
 
@@ -126,8 +126,9 @@ summary.lcpa_fit <- function(object, ...) {
   )
 
   # risk table
-  scores <- -3:3 - lambda_intercept
-  probs <- sprintf("%s%%", 100*round(score_to_prob(-3:3),2))
+  score_seq <- -3:3
+  scores <- score_seq - lambda_intercept
+  probs <- sprintf("%s%%", 100*round(score_to_prob(score_seq),2))
   s_scores <- paste(stringr::str_pad(scores, 4, "both"), collapse = "|")
   s_probs <- paste(stringr::str_pad(probs, 4, "both"), collapse = "|")
 
