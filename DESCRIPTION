@@ -1,6 +1,6 @@
 Package: riskslimr
 Title: Implementation of RiskSLIM model in R
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person(given = "Robert",
            family = "Zamora",
@@ -13,15 +13,12 @@ BugReports: https://github.com/zamorarr/riskslimr/issues
 Imports: 
     generics,
     magrittr,
-    Rcpp,
     recipes,
     rlang
 Suggests: 
     testthat (>= 2.1.0),
+    riskslimr.cplex,
     riskslimr.glpk
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
 Biarch: TRUE
 Encoding: UTF-8
 Language: en-US

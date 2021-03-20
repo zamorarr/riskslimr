@@ -8,8 +8,12 @@ compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_log
   cat(sprintf("writing solver log to %s\n", logfile))
 
   if (identical(engine, "cplex")) {
-    cat("using cplex\n")
-    r <- lcpa_cpp(x, y, logfile, R_max, time_limit)
+    if (requireNamespace("riskslimr.cplex", quietly = TRUE)) {
+      r <- riskslimr.cplex::lcpa_cplex(x, y, logfile, R_max, time_limit)
+    } else {
+      stop("Package riskslimr.cplex is not installed. Please install it to use the cplex engine.", call. = FALSE)
+    }
+
   } else {
     if (requireNamespace("riskslimr.glpk", quietly = TRUE)) {
       r <- riskslimr.glpk::lcpa_glpk(x, y, R_max, time_limit)
