@@ -6,6 +6,7 @@
 \alias{eval_precision}
 \alias{eval_recall}
 \alias{eval_accuracy}
+\alias{eval_logloss}
 \title{Evaluation Metrics}
 \usage{
 eval_auc(model_fit, new_data, ...)
@@ -17,6 +18,8 @@ eval_precision(model_fit, new_data, threshold = 0.5, ...)
 eval_recall(model_fit, new_data, threshold = 0.5, ...)
 
 eval_accuracy(model_fit, new_data, threshold = 0.5, ...)
+
+eval_logloss(model_fit, new_data)
 }
 \arguments{
 \item{model_fit}{model fit from \code{lcpa}}

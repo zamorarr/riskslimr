@@ -130,3 +130,13 @@ eval_accuracy.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
     mean(y_est == y_actual)
   }, double(1))
 }
+
+#' @rdname eval_auc
+#' @export
+eval_logloss <- function(model_fit, new_data) {
+  score <- predict.lcpa_fit(model_fit, new_data)
+  prob <- score_to_prob(score)
+  y <- response_var_from_data(new_data, model_fit$formula)
+
+  -mean(ifelse(y > 0, log(prob), log(1- prob)))
+}
