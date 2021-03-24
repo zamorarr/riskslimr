@@ -5,6 +5,8 @@
 #' @param threshold vector of values to use as threshold cutoffs
 #' @export
 eval_auc <- function(model_fit, new_data, ...) UseMethod("eval_auc")
+
+#' @export
 eval_auc.lcpa_fit <- function(model_fit, new_data, ...) {
   # get response variable
   formula <- model_fit$formula
@@ -20,13 +22,18 @@ eval_auc.lcpa_fit <- function(model_fit, new_data, ...) {
 
   auc <- vapply(ind_pos, function(i) sum(s[i] > s[ind_neg]), integer(1))
   auc <- sum(auc)
-  auc/(n_pos*n_neg)
+
+  # integer overflow for n_pos*n_neg?
+  #auc/(n_pos*n_neg)
+  exp(log(auc) - log(n_pos) - log(n_neg))
 }
 
 #' @rdname eval_auc
 #' @export
 #' @importFrom rlang .data
 eval_cal <- function(model_fit, new_data, grouped = FALSE, ...) UseMethod("eval_cal")
+
+#' @export
 eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
   score <- predict.lcpa_fit(model_fit, new_data)
   prob <- score_to_prob(score)
@@ -76,6 +83,8 @@ eval_cal.lcpa_fit <- function(model_fit, new_data, grouped = FALSE, ...) {
 #' @rdname eval_auc
 #' @export
 eval_precision <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_precision")
+
+#' @export
 eval_precision.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
   y_actual <- response_var_from_data(new_data, model_fit$formula)
 
@@ -100,6 +109,8 @@ eval_precision.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
 #' @rdname eval_auc
 #' @export
 eval_recall <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_recall")
+
+#' @export
 eval_recall.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
   y_actual <- response_var_from_data(new_data, model_fit$formula)
 
@@ -121,6 +132,8 @@ eval_recall.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
 #' @rdname eval_auc
 #' @export
 eval_accuracy <- function(model_fit, new_data, threshold = 0.5, ...) UseMethod("eval_accuracy")
+
+#' @export
 eval_accuracy.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
   y_actual <- response_var_from_data(new_data, model_fit$formula)
   probs <- predict.lcpa_fit(model_fit, new_data, type = "response")
@@ -133,7 +146,10 @@ eval_accuracy.lcpa_fit <- function(model_fit, new_data, threshold = 0.5, ...) {
 
 #' @rdname eval_auc
 #' @export
-eval_logloss <- function(model_fit, new_data) {
+eval_logloss <- function(model_fit, new_data) UseMethod("eval_logloss")
+
+#' @export
+eval_logloss.lcpa_fit <- function(model_fit, new_data) {
   score <- predict.lcpa_fit(model_fit, new_data)
   prob <- score_to_prob(score)
   y <- response_var_from_data(new_data, model_fit$formula)

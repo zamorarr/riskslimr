@@ -1,4 +1,3 @@
-#' @export
 step_discretize_floor <- function(
   recipe,
   ...,
@@ -79,7 +78,6 @@ bake.step_discretize_floor <- function(object, new_data, ...) {
   tibble::tibble(new_data)
 }
 
-#' @export
 step_discretize2 <- function(
   recipe,
   ...,
@@ -223,6 +221,7 @@ step_dummy_threshold_new <- function(terms, trained, role, thresholds, threshold
   )
 }
 
+#' @export
 prep.step_dummy_threshold <- function(x, training, info = NULL, ...) {
   col_names <- recipes::terms_select(terms = x$terms, info = info)
 
@@ -239,6 +238,7 @@ prep.step_dummy_threshold <- function(x, training, info = NULL, ...) {
   )
 }
 
+#' @export
 bake.step_dummy_threshold <- function(object, new_data, ...) {
   vars <- object$vars
   thresholds <- object$thresholds
