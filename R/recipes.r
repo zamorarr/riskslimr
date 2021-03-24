@@ -1,3 +1,12 @@
+#' @importFrom recipes prep
+#' @export
+recipes::prep
+
+#' @importFrom recipes bake
+#' @export
+recipes::bake
+
+
 step_discretize_floor <- function(
   recipe,
   ...,
