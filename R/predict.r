@@ -1,3 +1,8 @@
+#' @importFrom stats predict
+#' @export
+stats::predict
+
+#' @export
 predict.lcpa_fit <- function(model_fit, new_data, type = c("score", "response"), ...) {
   # type of prediction
   type <- match.arg(type)

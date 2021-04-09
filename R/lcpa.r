@@ -1,7 +1,7 @@
 # follow these conventions:
 # https://tidymodels.github.io/model-implementation-principles/index.html
 
-compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_logfile(), engine = c("cplex", "glpk")) {
+compute_lcpa <- function(x, y, weights, R_max = 3L, time_limit = 60, logfile = random_logfile(), engine = c("cplex", "glpk")) {
   engine <- match.arg(engine)
   # do lcpa
   logfile <- normalizePath(logfile, mustWork = FALSE)
@@ -9,7 +9,7 @@ compute_lcpa <- function(x, y, R_max = 3L, time_limit = 60, logfile = random_log
 
   if (identical(engine, "cplex")) {
     if (requireNamespace("riskslimr.cplex", quietly = TRUE)) {
-      r <- riskslimr.cplex::lcpa_cplex(x, y, logfile, R_max, time_limit)
+      r <- riskslimr.cplex::lcpa_cplex(x, y, weights, logfile, R_max, time_limit)
     } else {
       stop("Package riskslimr.cplex is not installed. Please install it to use the cplex engine.", call. = FALSE)
     }
@@ -61,7 +61,7 @@ lcpa.default <- function(x, ...) {
 
 #' @rdname lcpa
 #' @export
-lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile = random_logfile(), engine = c("cplex", "glpk"), ...) {
+lcpa.data.frame <- function(df, formula, weights = NULL, R_max = NULL, time_limit = 60, logfile = random_logfile(), engine = c("cplex", "glpk"), ...) {
   engine <- match.arg(engine)
 
   # build feature matrix
@@ -77,8 +77,17 @@ lcpa.data.frame <- function(df, formula, R_max = NULL, time_limit = 60, logfile 
     R_max <- as.integer(R_max)
   }
 
+  # check weights
+  if (is.null(weights)) {
+    weights <- rep(1, nrow(x))
+  }
+
+  if (length(weights) != nrow(x)) {
+    stop(sprintf("length of weights must be the num rows in x: %s", nrow(x)), call. = FALSE)
+  }
+
   # do lcpa
-  r <- compute_lcpa(x, y, R_max, time_limit, logfile, engine = engine)
+  r <- compute_lcpa(x, y, weights, R_max, time_limit, logfile, engine = engine)
 
   # add some useful info
   r$formula <- formula
