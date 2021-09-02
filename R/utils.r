@@ -1,6 +1,12 @@
 feature_matrix_from_data <- function(df, formula) {
   x <- model.matrix(formula, df)
-  colnames(x)[1] <- "[intercept]" # intercept name
+  # intercept name
+  colnames(x)[1] <- "[intercept]"
+
+  # fix cases when colnames are "fixed" by model.matrix
+  colnames(x) <- gsub("^`|`$", "", colnames(x))
+
+  # return matrix
   x
 }
 

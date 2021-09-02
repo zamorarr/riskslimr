@@ -16,9 +16,9 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{generics}{\code{\link[generics]{glance}}, \code{\link[generics]{augment}}, \code{\link[generics]{tidy}}}
+  \item{generics}{\code{\link[generics]{augment}}, \code{\link[generics]{glance}}, \code{\link[generics]{tidy}}}
 
-  \item{recipes}{\code{\link[recipes]{prep}}, \code{\link[recipes]{bake}}}
+  \item{recipes}{\code{\link[recipes]{bake}}, \code{\link[recipes]{prep}}}
 
   \item{stats}{\code{\link[stats]{predict}}}
 }}

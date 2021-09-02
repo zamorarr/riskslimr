@@ -10,8 +10,16 @@ lcpa(x, ...)
 
 \method{lcpa}{default}(x, ...)
 
-\method{lcpa}{data.frame}(df, formula, R_max = NULL, time_limit = 60,
-  logfile = random_logfile(), engine = c("cplex", "glpk"), ...)
+\method{lcpa}{data.frame}(
+  df,
+  formula,
+  weights = NULL,
+  R_max = NULL,
+  time_limit = 60,
+  logfile = random_logfile(),
+  engine = c("cplex", "glpk"),
+  ...
+)
 }
 \description{
 Lattice Cutting Plane Algorithm
